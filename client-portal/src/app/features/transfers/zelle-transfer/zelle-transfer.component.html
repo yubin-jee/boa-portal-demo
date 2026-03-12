@@ -1,0 +1,45 @@
+<section class="gb-zelle">
+  <h1>Send with Zelle<sup>®</sup></h1>
+  <p class="subtitle">Send money in minutes to almost anyone with a U.S. bank account.</p>
+
+  <div *ngIf="sent" class="gb-success">
+    Your Zelle payment was sent successfully.
+  </div>
+
+  <form *ngIf="!sent" [formGroup]="form" (ngSubmit)="send()">
+    <div class="gb-field">
+      <label>Recipient (email or U.S. mobile number)</label>
+      <input type="email" formControlName="recipientHandle" placeholder="name@example.com" />
+    </div>
+
+    <div class="gb-field" *ngIf="contacts.length">
+      <label>Or choose a recent contact</label>
+      <div class="contact-list">
+        <button
+          *ngFor="let contact of contacts"
+          type="button"
+          [class.verified]="contact.verified"
+          (click)="form.patchValue({ recipientHandle: contact.handle })"
+        >
+          {{ contact.displayName }}
+        </button>
+      </div>
+    </div>
+
+    <div class="gb-field">
+      <label>Amount (USD) — max $2,500</label>
+      <input type="number" formControlName="amount" min="1" max="2500" step="1" />
+    </div>
+
+    <div class="gb-field">
+      <label>Note (optional)</label>
+      <input type="text" formControlName="note" maxlength="100" />
+    </div>
+
+    <p *ngIf="error" class="gb-error">{{ error }}</p>
+
+    <button type="submit" [disabled]="form.invalid || sending">
+      {{ sending ? 'Sending…' : 'Send Money' }}
+    </button>
+  </form>
+</section>

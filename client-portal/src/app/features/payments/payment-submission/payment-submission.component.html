@@ -1,0 +1,48 @@
+<section class="gb-payment-submission">
+  <h1>Submit Payment</h1>
+  <p class="regulatory-notice">
+    Payments are processed via the GlobalBank Core Banking API. Transactions above
+    $10,000 are subject to BSA/AML review under 31 U.S.C. § 5313.
+  </p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="gb-field">
+      <label for="paymentType">Payment Type</label>
+      <select id="paymentType" formControlName="paymentType">
+        <option value="domestic">Domestic Wire</option>
+        <option value="international">International Wire (SWIFT)</option>
+        <option value="ach">ACH Transfer</option>
+      </select>
+    </div>
+
+    <div class="gb-field">
+      <label for="recipientAccountNumber">Recipient Account Number</label>
+      <input id="recipientAccountNumber" type="text" formControlName="recipientAccountNumber" />
+      <span class="gb-error" *ngIf="form.get('recipientAccountNumber')?.invalid && form.get('recipientAccountNumber')?.touched">
+        Enter a valid 8–17 digit account number.
+      </span>
+    </div>
+
+    <div class="gb-field">
+      <label for="routingNumber">Routing Number (ABA)</label>
+      <input id="routingNumber" type="text" formControlName="routingNumber" />
+    </div>
+
+    <div class="gb-field">
+      <label for="amount">Amount (USD)</label>
+      <input id="amount" type="number" formControlName="amount" min="0.01" step="0.01" />
+    </div>
+
+    <div class="gb-field">
+      <label for="memo">Memo</label>
+      <input id="memo" type="text" formControlName="memo" maxlength="140" />
+    </div>
+
+    <button type="submit" [disabled]="form.invalid || submitting">
+      {{ submitting ? 'Processing…' : 'Submit Payment' }}
+    </button>
+  </form>
+
+  <!-- PaymentConfirmationComponent rendered dynamically here via ComponentFactoryResolver -->
+  <ng-template #confirmationHost></ng-template>
+</section>

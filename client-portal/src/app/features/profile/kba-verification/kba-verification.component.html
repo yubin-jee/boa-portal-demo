@@ -1,0 +1,33 @@
+<section class="gb-kba">
+  <h1>Identity Verification</h1>
+  <p class="subtitle">
+    To protect your account, please answer your security questions.
+    You have <strong>{{ attemptsRemaining }}</strong> attempt(s) remaining.
+  </p>
+
+  <gb-loading-spinner *ngIf="loading" label="Loading security questions…"></gb-loading-spinner>
+
+  <div *ngIf="verified" class="gb-success">
+    Identity verified. You may proceed.
+  </div>
+
+  <div *ngIf="failed && attemptsRemaining > 0" class="gb-warning">
+    Incorrect answers. Please try again.
+  </div>
+
+  <div *ngIf="attemptsRemaining === 0" class="gb-error">
+    Your account has been temporarily locked. Please contact GlobalBank support at 1-800-432-1000.
+  </div>
+
+  <form *ngIf="!loading && !verified && form && attemptsRemaining > 0"
+        [formGroup]="form"
+        (ngSubmit)="verify()">
+    <div *ngFor="let question of questions" class="gb-field">
+      <label [for]="question.questionId">{{ question.questionText }}</label>
+      <input [id]="question.questionId" type="text" [formControlName]="question.questionId" autocomplete="off" />
+    </div>
+    <button type="submit" [disabled]="form.invalid || verifying">
+      {{ verifying ? 'Verifying…' : 'Verify Identity' }}
+    </button>
+  </form>
+</section>

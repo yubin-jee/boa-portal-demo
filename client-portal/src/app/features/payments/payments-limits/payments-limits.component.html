@@ -1,0 +1,23 @@
+<section class="gb-limits">
+  <h1>Payment Limits</h1>
+  <gb-loading-spinner *ngIf="loading"></gb-loading-spinner>
+  <p *ngIf="error" class="gb-error">{{ error }}</p>
+  <table *ngIf="!loading && limits.length">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Per Transaction</th>
+        <th>Daily Limit</th>
+        <th>Remaining Today</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let limit of limits">
+        <td>{{ limit.paymentType }}</td>
+        <td>{{ limit.perTransactionLimit | currency }}</td>
+        <td>{{ limit.dailyLimit | currency }}</td>
+        <td [class.low]="limit.remainingToday < 500">{{ limit.remainingToday | currency }}</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
