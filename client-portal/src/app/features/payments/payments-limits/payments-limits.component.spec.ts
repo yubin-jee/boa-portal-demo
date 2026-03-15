@@ -1,9 +1,9 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { of } from 'rxjs';
 import { PaymentsLimitsComponent } from './payments-limits.component';
 import { PaymentsService, PaymentLimit } from '../payments.service';
-import { LoadingSpinnerComponent } from '../../../shared-ui/components/loading-spinner/loading-spinner.component';
 
 describe('PaymentsLimitsComponent', () => {
   let component: PaymentsLimitsComponent;
@@ -20,9 +20,12 @@ describe('PaymentsLimitsComponent', () => {
     paymentsServiceSpy.getLimits.and.returnValue(of(mockLimits));
 
     await TestBed.configureTestingModule({
-      declarations: [PaymentsLimitsComponent, LoadingSpinnerComponent],
-      imports: [HttpClientTestingModule],
-      providers: [{ provide: PaymentsService, useValue: paymentsServiceSpy }],
+      imports: [PaymentsLimitsComponent],
+      providers: [
+        { provide: PaymentsService, useValue: paymentsServiceSpy },
+        provideHttpClient(),
+        provideHttpClientTesting(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PaymentsLimitsComponent);

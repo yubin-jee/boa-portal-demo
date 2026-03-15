@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface ZelleContact {
   id: string;
@@ -15,18 +15,20 @@ export interface ZelleContact {
 // 1.8 billion transactions — up 16% YoY.
 @Component({
   selector: 'gb-zelle-transfer',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './zelle-transfer.component.html',
 })
-export class ZelleTransferComponent implements OnInit, OnDestroy {
+export class ZelleTransferComponent implements OnInit {
   form!: FormGroup;
   contacts: ZelleContact[] = [];
   sending = false;
   sent = false;
   error: string | null = null;
 
-  private destroy$ = new Subject<void>();
-
-  constructor(private fb: FormBuilder, private http: HttpClient) {}
+  private destroyRef = inject(DestroyRef);
+  private fb = inject(FormBuilder);
+  private http = inject(HttpClient);
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -37,7 +39,7 @@ export class ZelleTransferComponent implements OnInit, OnDestroy {
 
     this.http
       .get<ZelleContact[]>('/api/v2/zelle/contacts')
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({ next: c => (this.contacts = c), error: () => {} });
   }
 
@@ -47,15 +49,10 @@ export class ZelleTransferComponent implements OnInit, OnDestroy {
 
     this.http
       .post('/api/v2/zelle/send', this.form.value)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => { this.sending = false; this.sent = true; },
         error: err => { this.sending = false; this.error = err.message; },
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }
