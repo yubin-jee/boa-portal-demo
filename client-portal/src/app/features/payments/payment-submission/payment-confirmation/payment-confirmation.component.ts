@@ -1,10 +1,11 @@
 import { Component, Input } from '@angular/core';
-import { PaymentResult } from '../payments.service';
+import { CommonModule } from '@angular/common';
+import { PaymentResult } from '../../payments.service';
 
-// Dynamically rendered by PaymentSubmissionComponent via ComponentFactoryResolver.
-// Angular 18 migration: becomes standalone, rendered via viewContainerRef.createComponent() directly.
 @Component({
   selector: 'gb-payment-confirmation',
+  standalone: true,
+  imports: [CommonModule],
   template: `
     <div class="gb-confirmation" [class.success]="result.success" [class.error]="!result.success">
       <ng-container *ngIf="result.success">
