@@ -39,7 +39,6 @@ boa-portal-demo/
 
 
 
-## Breaking changes Devin must fix
 
 | # | File | Angular 14 | Angular 18 | Demo moment |
 |---|------|-----------|-----------|-------------|
