@@ -1,25 +1,22 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { LoadingSpinnerComponent } from '../../../shared-ui/components/loading-spinner/loading-spinner.component';
 
 export interface KbaQuestion {
   questionId: string;
   questionText: string;
 }
 
-// KBA = Knowledge-Based Authentication.
-// Used by GlobalBank for high-risk profile changes: adding a new payee,
-// updating a phone number, re-enabling a locked account.
-// Regulated under FFIEC Authentication Guidance (2011, updated 2022).
-// Failure to correctly migrate this component breaks the account recovery flow
-// for GlobalBank's 59 million verified digital users.
 @Component({
   selector: 'gb-kba-verification',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, LoadingSpinnerComponent],
   templateUrl: './kba-verification.component.html',
 })
-export class KbaVerificationComponent implements OnInit, OnDestroy {
+export class KbaVerificationComponent implements OnInit {
   form!: FormGroup;
   questions: KbaQuestion[] = [];
   loading = true;
@@ -28,14 +25,14 @@ export class KbaVerificationComponent implements OnInit, OnDestroy {
   failed = false;
   attemptsRemaining = 3;
 
-  private destroy$ = new Subject<void>();
-
-  constructor(private fb: FormBuilder, private http: HttpClient) {}
+  private destroyRef = inject(DestroyRef);
+  private fb = inject(FormBuilder);
+  private http = inject(HttpClient);
 
   ngOnInit(): void {
     this.http
       .get<KbaQuestion[]>('/api/v2/profile/kba/questions')
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: questions => {
           this.questions = questions;
@@ -57,7 +54,7 @@ export class KbaVerificationComponent implements OnInit, OnDestroy {
         '/api/v2/profile/kba/verify',
         this.form.value
       )
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => {
           this.verifying = false;
@@ -71,10 +68,5 @@ export class KbaVerificationComponent implements OnInit, OnDestroy {
         },
         error: () => (this.verifying = false),
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }
