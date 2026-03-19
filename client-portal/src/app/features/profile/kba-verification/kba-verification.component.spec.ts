@@ -1,8 +1,7 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { ReactiveFormsModule } from '@angular/forms';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { KbaVerificationComponent } from './kba-verification.component';
-import { LoadingSpinnerComponent } from '../../../shared-ui/components/loading-spinner/loading-spinner.component';
 
 describe('KbaVerificationComponent', () => {
   let component: KbaVerificationComponent;
@@ -16,8 +15,11 @@ describe('KbaVerificationComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [KbaVerificationComponent, LoadingSpinnerComponent],
-      imports: [ReactiveFormsModule, HttpClientTestingModule],
+      imports: [KbaVerificationComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(KbaVerificationComponent);
